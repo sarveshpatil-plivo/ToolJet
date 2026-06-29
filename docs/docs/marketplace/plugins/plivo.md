@@ -3,7 +3,7 @@ id: marketplace-plugin-plivo
 title: Plivo
 ---
 
-You can integrate your ToolJet application with Plivo for SMS functionality.
+You can integrate your ToolJet application with Plivo for SMS and voice call functionality.
 
 :::note
 Before following this guide, it is assumed that you have already completed the process of **[Using Marketplace plugins](/docs/marketplace/marketplace-overview#using-marketplace-plugins)**.
@@ -44,3 +44,17 @@ You can use the Send SMS operation to send an SMS to a specified mobile number.
 <img className="screenshot-full" src="/img/marketplace/plugins/plivo/sendsms-v2.png" alt="Send SMS Using plivo" />
 
 </div>
+
+### Make Call
+
+You can use the Make Call operation to place an outbound voice call. When the call is answered, Plivo fetches the call instructions (Plivo XML) from the Answer URL you provide.
+
+#### Required Parameters: 
+
+- **From Number**
+- **To Number**
+- **Answer URL**
+
+#### Optional Parameters: 
+
+- **Answer Method** (HTTP method used to request the Answer URL; must be `GET` or `POST`, defaults to `POST`)
