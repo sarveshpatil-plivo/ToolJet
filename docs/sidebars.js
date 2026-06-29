@@ -347,6 +347,7 @@ const sidebars = {
             'data-sources/notion',
             'data-sources/openapi',
             'data-sources/oracledb',
+            'data-sources/plivo',
             'data-sources/postgresql',
             'data-sources/redis',
             {

@@ -14,6 +14,18 @@
         {
           "value": "send_sms",
           "name": "Send SMS"
+        },
+        {
+          "value": "make_call",
+          "name": "Make Call"
+        },
+        {
+          "value": "send_whatsapp",
+          "name": "Send WhatsApp"
+        },
+        {
+          "value": "lookup_number",
+          "name": "Lookup Number"
         }
       ]
     },
@@ -48,6 +60,118 @@
         "height": "36px",
         "className": "codehinter-plugins",
         "placeholder": "Enter message body"
+      }
+    },
+    "make_call": {
+      "call_to": {
+        "label": "To Number",
+        "key": "call_to",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "Enter to number",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins"
+      },
+      "call_from": {
+        "label": "From Number",
+        "key": "call_from",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "Enter from number",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins"
+      },
+      "answer_url": {
+        "label": "Answer URL",
+        "key": "answer_url",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "URL Plivo fetches the answer XML from when the call is answered",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins",
+        "placeholder": "https://example.com/answer.xml"
+      },
+      "answer_method": {
+        "label": "Answer Method",
+        "key": "answer_method",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "HTTP method used to fetch the answer URL (defaults to POST)",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins",
+        "placeholder": "POST"
+      }
+    },
+    "send_whatsapp": {
+      "wa_to": {
+        "label": "To Number",
+        "key": "wa_to",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "Enter to number",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins"
+      },
+      "wa_from": {
+        "label": "From Number",
+        "key": "wa_from",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "Enter WhatsApp-enabled from number",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins"
+      },
+      "wa_body": {
+        "label": "Body",
+        "key": "wa_body",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "Free-form text (only delivered within the 24h session window)",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins",
+        "placeholder": "Enter message body"
+      },
+      "wa_template": {
+        "label": "Template",
+        "key": "wa_template",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "JSON template object { name, language, components? } for business-initiated messages",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins",
+        "placeholder": "{ \"name\": \"...\", \"language\": \"en_US\" }"
+      }
+    },
+    "lookup_number": {
+      "lookup_number": {
+        "label": "Number",
+        "key": "lookup_number",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "Phone number to look up (E.164 format)",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins",
+        "placeholder": "+14150000000"
+      },
+      "lookup_type": {
+        "label": "Type",
+        "key": "lookup_type",
+        "type": "codehinter",
+        "lineNumbers": false,
+        "description": "Set to 'carrier' to include carrier details; leave blank for basic info",
+        "width": "320px",
+        "height": "36px",
+        "className": "codehinter-plugins",
+        "placeholder": "carrier"
       }
     }
   }
