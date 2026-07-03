@@ -68,9 +68,7 @@ export default class PlivoService implements QueryService {
           throw new Error(`Unhandled operation: ${queryOptions.operation}`);
       }
     } catch (error: any) {
-      // PlivoRestError sets status/statusText/message/apiID/moreInfo and overwrites
-      // .message with the API error string (plain text, not JSON). Forward those,
-      // guarded, so the caller keeps the context. (node_modules/plivo/dist/utils/restException.js)
+      // Forward Plivo's API error message so the caller keeps the context.
       const errorMessage = error?.message || error?.name || 'Unknown error';
       throw new QueryError('Query could not be completed', errorMessage, {
         name: error?.name,
