@@ -1,16 +1,16 @@
 'use strict';
 
 // Mock the plivo SDK so we can assert how PlivoService calls it, without any network.
-const messagesCreate = jest.fn();
-const callsCreate = jest.fn();
+const mockMessagesCreate = jest.fn();
+const mockCallsCreate = jest.fn();
 
 jest.mock('plivo', () => ({
   Client: jest.fn().mockImplementation((authId, authToken) => ({
     // expose the args the client was constructed with for assertions
     __authId: authId,
     __authToken: authToken,
-    messages: { create: messagesCreate },
-    calls: { create: callsCreate },
+    messages: { create: mockMessagesCreate },
+    calls: { create: mockCallsCreate },
   })),
 }));
 
@@ -30,7 +30,7 @@ describe('PlivoService', () => {
   describe('send_sms', () => {
     it('calls messages.create(from, to, body) and returns the SDK response', async () => {
       const sdkResponse = { messageUuid: ['abc-123'], apiId: 'api-1' };
-      messagesCreate.mockResolvedValue(sdkResponse);
+      mockMessagesCreate.mockResolvedValue(sdkResponse);
 
       const result = await service.run(sourceOptions, {
         operation: 'send_sms',
@@ -40,8 +40,8 @@ describe('PlivoService', () => {
       });
 
       expect(plivo.Client).toHaveBeenCalledWith('test-auth-id', 'test-auth-token');
-      expect(messagesCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'hello');
-      expect(callsCreate).not.toHaveBeenCalled();
+      expect(mockMessagesCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'hello');
+      expect(mockCallsCreate).not.toHaveBeenCalled();
       expect(result).toEqual({ status: 'ok', data: sdkResponse });
     });
   });
@@ -49,62 +49,62 @@ describe('PlivoService', () => {
   describe('make_call', () => {
     it('calls calls.create(from, to, answerUrl, params) with the answer method', async () => {
       const sdkResponse = { requestUuid: 'req-9', apiId: 'api-2', message: 'call fired' };
-      callsCreate.mockResolvedValue(sdkResponse);
+      mockCallsCreate.mockResolvedValue(sdkResponse);
 
       const result = await service.run(sourceOptions, {
         operation: 'make_call',
-        call_from: '+14150000000',
-        call_to: '+14151111111',
+        from: '+14150000000',
+        to: '+14151111111',
         answer_url: 'https://example.com/answer.xml',
         answer_method: 'GET',
       });
 
-      expect(callsCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'https://example.com/answer.xml', {
+      expect(mockCallsCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'https://example.com/answer.xml', {
         answerMethod: 'GET',
       });
-      expect(messagesCreate).not.toHaveBeenCalled();
+      expect(mockMessagesCreate).not.toHaveBeenCalled();
       expect(result).toEqual({ status: 'ok', data: sdkResponse });
     });
 
     it('omits answerMethod from params when not provided', async () => {
-      callsCreate.mockResolvedValue({ requestUuid: 'req-10' });
+      mockCallsCreate.mockResolvedValue({ requestUuid: 'req-10' });
 
       await service.run(sourceOptions, {
         operation: 'make_call',
-        call_from: '+14150000000',
-        call_to: '+14151111111',
+        from: '+14150000000',
+        to: '+14151111111',
         answer_url: 'https://example.com/answer.xml',
       });
 
-      expect(callsCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'https://example.com/answer.xml', {});
+      expect(mockCallsCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'https://example.com/answer.xml', {});
     });
 
     it('treats an empty answer_method as not provided (params stays {})', async () => {
-      callsCreate.mockResolvedValue({ requestUuid: 'req-11' });
+      mockCallsCreate.mockResolvedValue({ requestUuid: 'req-11' });
 
       await service.run(sourceOptions, {
         operation: 'make_call',
-        call_from: '+14150000000',
-        call_to: '+14151111111',
+        from: '+14150000000',
+        to: '+14151111111',
         answer_url: 'https://example.com/answer.xml',
         answer_method: '',
       });
 
-      expect(callsCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'https://example.com/answer.xml', {});
+      expect(mockCallsCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'https://example.com/answer.xml', {});
     });
 
     it('normalizes a lowercase answer_method to upper case', async () => {
-      callsCreate.mockResolvedValue({ requestUuid: 'req-12' });
+      mockCallsCreate.mockResolvedValue({ requestUuid: 'req-12' });
 
       await service.run(sourceOptions, {
         operation: 'make_call',
-        call_from: '+14150000000',
-        call_to: '+14151111111',
+        from: '+14150000000',
+        to: '+14151111111',
         answer_url: 'https://example.com/answer.xml',
         answer_method: 'post',
       });
 
-      expect(callsCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'https://example.com/answer.xml', {
+      expect(mockCallsCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', 'https://example.com/answer.xml', {
         answerMethod: 'POST',
       });
     });
@@ -113,27 +113,27 @@ describe('PlivoService', () => {
       await expect(
         service.run(sourceOptions, {
           operation: 'make_call',
-          call_from: '+14150000000',
-          call_to: '+14151111111',
+          from: '+14150000000',
+          to: '+14151111111',
           answer_url: 'https://example.com/answer.xml',
           answer_method: 'PUT',
         })
       ).rejects.toMatchObject({ message: 'Answer Method must be GET or POST' });
 
-      expect(callsCreate).not.toHaveBeenCalled();
+      expect(mockCallsCreate).not.toHaveBeenCalled();
     });
 
     it('throws the specific message (not the SDK) when a required field is whitespace-only', async () => {
       await expect(
         service.run(sourceOptions, {
           operation: 'make_call',
-          call_from: '   ',
-          call_to: '+14151111111',
+          from: '   ',
+          to: '+14151111111',
           answer_url: 'https://example.com/answer.xml',
         })
       ).rejects.toMatchObject({ message: 'From Number is required' });
 
-      expect(callsCreate).not.toHaveBeenCalled();
+      expect(mockCallsCreate).not.toHaveBeenCalled();
     });
 
     it('throws (and never calls the SDK) when the answer URL is missing', async () => {
@@ -141,12 +141,12 @@ describe('PlivoService', () => {
       await expect(
         service.run(sourceOptions, {
           operation: 'make_call',
-          call_from: '+14150000000',
-          call_to: '+14151111111',
+          from: '+14150000000',
+          to: '+14151111111',
         })
       ).rejects.toMatchObject({ message: 'Answer URL is required' });
 
-      expect(callsCreate).not.toHaveBeenCalled();
+      expect(mockCallsCreate).not.toHaveBeenCalled();
     });
   });
 
@@ -161,7 +161,7 @@ describe('PlivoService', () => {
         })
       ).rejects.toMatchObject({ message: 'Body is required' });
 
-      expect(messagesCreate).not.toHaveBeenCalled();
+      expect(mockMessagesCreate).not.toHaveBeenCalled();
     });
 
     it('throws the specific message when a required field is whitespace-only', async () => {
@@ -174,11 +174,11 @@ describe('PlivoService', () => {
         })
       ).rejects.toMatchObject({ message: 'From Number is required' });
 
-      expect(messagesCreate).not.toHaveBeenCalled();
+      expect(mockMessagesCreate).not.toHaveBeenCalled();
     });
 
     it("accepts a string '0' body (truthy after trim)", async () => {
-      messagesCreate.mockResolvedValue({ messageUuid: ['z-1'] });
+      mockMessagesCreate.mockResolvedValue({ messageUuid: ['z-1'] });
 
       await service.run(sourceOptions, {
         operation: 'send_sms',
@@ -187,7 +187,7 @@ describe('PlivoService', () => {
         body: '0',
       });
 
-      expect(messagesCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', '0');
+      expect(mockMessagesCreate).toHaveBeenCalledWith('+14150000000', '+14151111111', '0');
     });
 
     it('rejects a non-string field with the clean message (no TypeError) and never calls the SDK', async () => {
@@ -203,7 +203,7 @@ describe('PlivoService', () => {
         })
       ).rejects.toMatchObject({ message: 'From Number is required' });
 
-      expect(messagesCreate).not.toHaveBeenCalled();
+      expect(mockMessagesCreate).not.toHaveBeenCalled();
     });
 
     it('rejects a numeric body as missing (body is treated as a string)', async () => {
@@ -216,7 +216,7 @@ describe('PlivoService', () => {
         })
       ).rejects.toMatchObject({ message: 'Body is required' });
 
-      expect(messagesCreate).not.toHaveBeenCalled();
+      expect(mockMessagesCreate).not.toHaveBeenCalled();
     });
   });
 
@@ -226,7 +226,7 @@ describe('PlivoService', () => {
     ).rejects.toMatchObject({ message: 'Plivo Auth ID and Auth Token are required' });
 
     expect(plivo.Client).not.toHaveBeenCalled();
-    expect(messagesCreate).not.toHaveBeenCalled();
+    expect(mockMessagesCreate).not.toHaveBeenCalled();
   });
 
   describe('error handling', () => {
@@ -240,13 +240,13 @@ describe('PlivoService', () => {
         apiID: 'abc-api-id',
         moreInfo: 'from=invalid',
       });
-      callsCreate.mockRejectedValue(plivoError);
+      mockCallsCreate.mockRejectedValue(plivoError);
 
       await expect(
         service.run(sourceOptions, {
           operation: 'make_call',
-          call_from: '+14150000000',
-          call_to: '+14151111111',
+          from: '+14150000000',
+          to: '+14151111111',
           answer_url: 'https://example.com/answer.xml',
         })
       ).rejects.toMatchObject({
@@ -266,7 +266,7 @@ describe('PlivoService', () => {
     it('falls back to the error name when message is absent', async () => {
       const errNoMessage = Object.assign(new Error(), { name: 'AuthenticationError', status: 401 });
       // Ensure message really is empty (Error('') gives '').
-      messagesCreate.mockRejectedValue(errNoMessage);
+      mockMessagesCreate.mockRejectedValue(errNoMessage);
 
       await expect(
         service.run(sourceOptions, { operation: 'send_sms', from: '+14150000000', to: '+14151111111', body: 'hi' })
@@ -285,7 +285,7 @@ describe('PlivoService', () => {
     await expect(service.run(sourceOptions, { operation: 'bogus' })).rejects.toMatchObject({
       message: 'Unknown operation: bogus',
     });
-    expect(messagesCreate).not.toHaveBeenCalled();
-    expect(callsCreate).not.toHaveBeenCalled();
+    expect(mockMessagesCreate).not.toHaveBeenCalled();
+    expect(mockCallsCreate).not.toHaveBeenCalled();
   });
 });

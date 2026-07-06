@@ -55,9 +55,9 @@
       }
     },
     "make_call": {
-      "call_to": {
+      "to": {
         "label": "To Number",
-        "key": "call_to",
+        "key": "to",
         "type": "codehinter",
         "lineNumbers": false,
         "description": "Enter to number",
@@ -65,9 +65,9 @@
         "height": "36px",
         "className": "codehinter-plugins"
       },
-      "call_from": {
+      "from": {
         "label": "From Number",
-        "key": "call_from",
+        "key": "from",
         "type": "codehinter",
         "lineNumbers": false,
         "description": "Enter from number",

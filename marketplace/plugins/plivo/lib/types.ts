@@ -5,13 +5,12 @@ export type SourceOptions = {
 
 export type QueryOptions = {
   operation: string;
-  // send_sms
+  // shared by send_sms and make_call
   to: string;
   from: string;
+  // send_sms
   body: string;
   // make_call
-  call_to: string;
-  call_from: string;
   answer_url: string;
   answer_method: string;
 };

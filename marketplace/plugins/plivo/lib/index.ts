@@ -23,9 +23,9 @@ export default class PlivoService implements QueryService {
         if (typeof queryOptions.body !== 'string' || !queryOptions.body.trim()) throw new Error('Body is required');
         break;
       case 'make_call':
-        if (typeof queryOptions.call_from !== 'string' || !queryOptions.call_from.trim())
+        if (typeof queryOptions.from !== 'string' || !queryOptions.from.trim())
           throw new Error('From Number is required');
-        if (typeof queryOptions.call_to !== 'string' || !queryOptions.call_to.trim())
+        if (typeof queryOptions.to !== 'string' || !queryOptions.to.trim())
           throw new Error('To Number is required');
         if (typeof queryOptions.answer_url !== 'string' || !queryOptions.answer_url.trim())
           throw new Error('Answer URL is required');
@@ -45,20 +45,24 @@ export default class PlivoService implements QueryService {
 
       switch (queryOptions.operation) {
         case 'send_sms':
-          result = await client.messages.create(queryOptions.from, queryOptions.to, queryOptions.body);
+          result = await client.messages.create(
+            queryOptions.from.trim(),
+            queryOptions.to.trim(),
+            queryOptions.body.trim()
+          );
           break;
 
         case 'make_call': {
           const params: { answerMethod?: string } = {};
           if (typeof queryOptions.answer_method === 'string' && queryOptions.answer_method.trim()) {
             // Already validated to GET/POST above.
-            params.answerMethod = queryOptions.answer_method.toUpperCase();
+            params.answerMethod = queryOptions.answer_method.trim().toUpperCase();
           }
 
           result = await client.calls.create(
-            queryOptions.call_from,
-            queryOptions.call_to,
-            queryOptions.answer_url,
+            queryOptions.from.trim(),
+            queryOptions.to.trim(),
+            queryOptions.answer_url.trim(),
             params
           );
           break;
@@ -76,7 +80,6 @@ export default class PlivoService implements QueryService {
         status: error?.status,
         statusText: error?.statusText,
         apiId: error?.apiID,
-        moreInfo: error?.moreInfo,
       });
     }
 
