@@ -14,7 +14,6 @@ export default class PlivoService implements QueryService {
       throw new Error('Plivo Auth ID and Auth Token are required');
     }
 
-    // Validate required inputs before the try so the specific message surfaces.
     switch (queryOptions.operation) {
       case 'send_sms':
         if (typeof queryOptions.from !== 'string' || !queryOptions.from.trim())
@@ -55,7 +54,6 @@ export default class PlivoService implements QueryService {
         case 'make_call': {
           const params: { answerMethod?: string } = {};
           if (typeof queryOptions.answer_method === 'string' && queryOptions.answer_method.trim()) {
-            // Already validated to GET/POST above.
             params.answerMethod = queryOptions.answer_method.trim().toUpperCase();
           }
 
@@ -67,12 +65,8 @@ export default class PlivoService implements QueryService {
           );
           break;
         }
-
-        default:
-          throw new Error(`Unhandled operation: ${queryOptions.operation}`);
       }
     } catch (error: any) {
-      // Forward Plivo's API error message so the caller keeps the context.
       const errorMessage = error?.message || error?.name || 'Unknown error';
       throw new QueryError('Query could not be completed', errorMessage, {
         name: error?.name,

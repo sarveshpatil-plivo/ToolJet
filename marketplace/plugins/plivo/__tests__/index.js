@@ -1,12 +1,10 @@
 'use strict';
 
-// Mock the plivo SDK so we can assert how PlivoService calls it, without any network.
 const mockMessagesCreate = jest.fn();
 const mockCallsCreate = jest.fn();
 
 jest.mock('plivo', () => ({
   Client: jest.fn().mockImplementation((authId, authToken) => ({
-    // expose the args the client was constructed with for assertions
     __authId: authId,
     __authToken: authToken,
     messages: { create: mockMessagesCreate },
@@ -137,7 +135,6 @@ describe('PlivoService', () => {
     });
 
     it('throws (and never calls the SDK) when the answer URL is missing', async () => {
-      // Guard runs before the try, so the specific message surfaces.
       await expect(
         service.run(sourceOptions, {
           operation: 'make_call',
@@ -157,7 +154,6 @@ describe('PlivoService', () => {
           operation: 'send_sms',
           from: '+14150000000',
           to: '+14151111111',
-          // body missing
         })
       ).rejects.toMatchObject({ message: 'Body is required' });
 
@@ -191,9 +187,6 @@ describe('PlivoService', () => {
     });
 
     it('rejects a non-string field with the clean message (no TypeError) and never calls the SDK', async () => {
-      // Regression: optional chaining (from?.trim()) would throw a raw TypeError
-      // on a non-string before the try, escaping unwrapped. The typeof guard
-      // rejects it cleanly instead.
       await expect(
         service.run(sourceOptions, {
           operation: 'send_sms',
@@ -231,8 +224,6 @@ describe('PlivoService', () => {
 
   describe('error handling', () => {
     it("forwards PlivoRestError's structured fields into the QueryError data", async () => {
-      // Field names verified against node_modules/plivo/dist/utils/restException.js:
-      // PlivoRestError sets .status, .statusText, .message, .apiID, .moreInfo.
       const plivoError = Object.assign(new Error('Invalid phone number'), {
         name: 'PlivoRestError',
         status: 400,
@@ -265,7 +256,6 @@ describe('PlivoService', () => {
 
     it('falls back to the error name when message is absent', async () => {
       const errNoMessage = Object.assign(new Error(), { name: 'AuthenticationError', status: 401 });
-      // Ensure message really is empty (Error('') gives '').
       mockMessagesCreate.mockRejectedValue(errNoMessage);
 
       await expect(
@@ -277,10 +267,6 @@ describe('PlivoService', () => {
     });
   });
 
-  // An unknown operation is rejected by the pre-try validation switch. The inner
-  // (in-try) switch also has a `default` backstop so a future validated-but-
-  // unimplemented op fails loudly instead of returning empty data; that path is
-  // unreachable via the public API while both switches stay in sync.
   it('throws on an unknown operation', async () => {
     await expect(service.run(sourceOptions, { operation: 'bogus' })).rejects.toMatchObject({
       message: 'Unknown operation: bogus',
